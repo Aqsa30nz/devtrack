@@ -3,6 +3,7 @@ package com.aqsa.devtrack.controller;
 import com.aqsa.devtrack.entity.Activity;
 import com.aqsa.devtrack.service.ActivityService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PutMapping;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,13 +32,21 @@ public class ActivityController {
 
     // GET Activity by ID
     @GetMapping("/{id}")
-    public Optional<Activity> getActivityById(@PathVariable Long id) {
-        return activityService.getActivityById(id);
+    public Activity getActivityById(@PathVariable Long id) {
+        return activityService.getActivityById(id)
+                .orElseThrow(() -> new RuntimeException("Activity not found with id: " + id));
     }
 
     // DELETE Activity
     @DeleteMapping("/{id}")
     public void deleteActivity(@PathVariable Long id) {
         activityService.deleteActivity(id);
+    }
+
+    // UPDATE Activity
+    @PutMapping("/{id}")
+    public Activity updateActivity(@PathVariable Long id,
+                                   @RequestBody Activity activity) {
+        return activityService.updateActivity(id, activity);
     }
 }

@@ -35,4 +35,16 @@ public class ActivityService {
     public void deleteActivity(Long id) {
         activityRepository.deleteById(id);
     }
+
+    //UPDATE
+    public Activity updateActivity(Long id, Activity updatedActivity) {
+        Activity existingActivity = activityRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Activity not found with id: " + id));
+
+        existingActivity.setTitle(updatedActivity.getTitle());
+        existingActivity.setDescription(updatedActivity.getDescription());
+        existingActivity.setDurationMinutes(updatedActivity.getDurationMinutes());
+
+        return activityRepository.save(existingActivity);
+    }
 }
