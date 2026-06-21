@@ -1,4 +1,5 @@
 package com.aqsa.devtrack.controller;
+import jakarta.validation.Valid;
 
 import com.aqsa.devtrack.dto.ActivityRequestDTO;
 import com.aqsa.devtrack.dto.ActivityResponseDTO;
@@ -19,7 +20,7 @@ public class ActivityController {
 
     @PostMapping
     public ActivityResponseDTO createActivity(
-            @RequestBody ActivityRequestDTO requestDTO) {
+            @Valid @RequestBody ActivityRequestDTO requestDTO) {
 
         return activityService.createActivity(requestDTO);
     }

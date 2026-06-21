@@ -3,6 +3,7 @@ package com.aqsa.devtrack.service;
 import com.aqsa.devtrack.dto.ActivityRequestDTO;
 import com.aqsa.devtrack.dto.ActivityResponseDTO;
 import com.aqsa.devtrack.entity.Activity;
+import com.aqsa.devtrack.exception.ResourceNotFoundException;
 import com.aqsa.devtrack.repository.ActivityRepository;
 import org.springframework.stereotype.Service;
 
@@ -53,20 +54,34 @@ public class ActivityService {
     public ActivityResponseDTO getActivityById(Long id) {
 
         Activity activity = activityRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Activity not found with id: " + id));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Activity not found with id: " + id
+                        ));
 
         return mapToResponseDTO(activity);
     }
 
     public void deleteActivity(Long id) {
-        activityRepository.deleteById(id);
+
+        Activity activity = activityRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Activity not found with id: " + id
+                        ));
+
+        activityRepository.delete(activity);
     }
 
-    public ActivityResponseDTO updateActivity(Long id,
-                                              ActivityRequestDTO requestDTO) {
+    public ActivityResponseDTO updateActivity(
+            Long id,
+            ActivityRequestDTO requestDTO) {
 
         Activity existingActivity = activityRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Activity not found with id: " + id));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Activity not found with id: " + id
+                        ));
 
         existingActivity.setTitle(requestDTO.getTitle());
         existingActivity.setDescription(requestDTO.getDescription());
