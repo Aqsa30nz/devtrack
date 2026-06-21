@@ -1,12 +1,11 @@
 package com.aqsa.devtrack.controller;
 
-import com.aqsa.devtrack.entity.Activity;
+import com.aqsa.devtrack.dto.ActivityRequestDTO;
+import com.aqsa.devtrack.dto.ActivityResponseDTO;
 import com.aqsa.devtrack.service.ActivityService;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.PutMapping;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/activities")
@@ -18,35 +17,37 @@ public class ActivityController {
         this.activityService = activityService;
     }
 
-    // CREATE Activity
     @PostMapping
-    public Activity createActivity(@RequestBody Activity activity) {
-        return activityService.createActivity(activity);
+    public ActivityResponseDTO createActivity(
+            @RequestBody ActivityRequestDTO requestDTO) {
+
+        return activityService.createActivity(requestDTO);
     }
 
-    // GET all Activities
     @GetMapping
-    public List<Activity> getAllActivities() {
+    public List<ActivityResponseDTO> getAllActivities() {
         return activityService.getAllActivities();
     }
 
-    // GET Activity by ID
     @GetMapping("/{id}")
-    public Activity getActivityById(@PathVariable Long id) {
-        return activityService.getActivityById(id)
-                .orElseThrow(() -> new RuntimeException("Activity not found with id: " + id));
+    public ActivityResponseDTO getActivityById(
+            @PathVariable Long id) {
+
+        return activityService.getActivityById(id);
     }
 
-    // DELETE Activity
     @DeleteMapping("/{id}")
-    public void deleteActivity(@PathVariable Long id) {
+    public void deleteActivity(
+            @PathVariable Long id) {
+
         activityService.deleteActivity(id);
     }
 
-    // UPDATE Activity
     @PutMapping("/{id}")
-    public Activity updateActivity(@PathVariable Long id,
-                                   @RequestBody Activity activity) {
-        return activityService.updateActivity(id, activity);
+    public ActivityResponseDTO updateActivity(
+            @PathVariable Long id,
+            @RequestBody ActivityRequestDTO requestDTO) {
+
+        return activityService.updateActivity(id, requestDTO);
     }
 }
