@@ -128,7 +128,7 @@ src/main/java/com/aqsa/devtrack
 
 ---
 
-## 🔵 Phase 3 — Planned
+## 🔵 Phase 3 — In Progress
 
 ### Security
 
@@ -269,7 +269,7 @@ Invoke-RestMethod `
 | --------------------------------------- | ----------- |
 | Phase 1 - CRUD + PostgreSQL             | ✅ Completed |
 | Phase 2 - DTO + Validation + Exceptions | ✅ Completed |
-| Phase 3 - JWT Authentication            | 🚧 Planned  |
+| Phase 3 - JWT Authentication            | 📌 In Progress|
 | Phase 4 - Analytics & Deployment        | 🚧 Planned  |
 
 ---
