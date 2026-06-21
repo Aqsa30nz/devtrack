@@ -1,12 +1,14 @@
 package com.aqsa.devtrack.controller;
 
-import com.aqsa.devtrack.entity.Activity;
+import jakarta.validation.Valid;
+
+import com.aqsa.devtrack.dto.ActivityRequestDTO;
+import com.aqsa.devtrack.dto.ActivityResponseDTO;
+import com.aqsa.devtrack.dto.ApiResponse;
 import com.aqsa.devtrack.service.ActivityService;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.PutMapping;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/activities")
@@ -18,35 +20,63 @@ public class ActivityController {
         this.activityService = activityService;
     }
 
-    // CREATE Activity
     @PostMapping
-    public Activity createActivity(@RequestBody Activity activity) {
-        return activityService.createActivity(activity);
+    public ApiResponse<ActivityResponseDTO> createActivity(
+            @Valid @RequestBody ActivityRequestDTO requestDTO) {
+
+        ActivityResponseDTO activity =
+                activityService.createActivity(requestDTO);
+
+        return new ApiResponse<>(
+                true,
+                activity,
+                "Activity created successfully"
+        );
     }
 
-    // GET all Activities
     @GetMapping
-    public List<Activity> getAllActivities() {
-        return activityService.getAllActivities();
+    public ApiResponse<List<ActivityResponseDTO>> getAllActivities() {
+
+        return new ApiResponse<>(
+                true,
+                activityService.getAllActivities(),
+                "Activities fetched successfully"
+        );
     }
 
-    // GET Activity by ID
     @GetMapping("/{id}")
-    public Activity getActivityById(@PathVariable Long id) {
-        return activityService.getActivityById(id)
-                .orElseThrow(() -> new RuntimeException("Activity not found with id: " + id));
+    public ApiResponse<ActivityResponseDTO> getActivityById(
+            @PathVariable Long id) {
+
+        return new ApiResponse<>(
+                true,
+                activityService.getActivityById(id),
+                "Activity fetched successfully"
+        );
     }
 
-    // DELETE Activity
-    @DeleteMapping("/{id}")
-    public void deleteActivity(@PathVariable Long id) {
-        activityService.deleteActivity(id);
-    }
-
-    // UPDATE Activity
     @PutMapping("/{id}")
-    public Activity updateActivity(@PathVariable Long id,
-                                   @RequestBody Activity activity) {
-        return activityService.updateActivity(id, activity);
+    public ApiResponse<ActivityResponseDTO> updateActivity(
+            @PathVariable Long id,
+            @Valid @RequestBody ActivityRequestDTO requestDTO) {
+
+        return new ApiResponse<>(
+                true,
+                activityService.updateActivity(id, requestDTO),
+                "Activity updated successfully"
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> deleteActivity(
+            @PathVariable Long id) {
+
+        activityService.deleteActivity(id);
+
+        return new ApiResponse<>(
+                true,
+                null,
+                "Activity deleted successfully"
+        );
     }
 }

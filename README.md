@@ -1,184 +1,293 @@
 # 🚀 DevTrack — Activity Tracking Backend System
 
-A scalable backend system built using **Spring Boot + PostgreSQL** to track user activities with full CRUD functionality.
+A scalable backend application built using **Spring Boot, PostgreSQL, and Java** for tracking coding and learning activities.
 
-Designed using clean layered architecture and prepared for future expansion into authentication, analytics, and production deployment.
+Designed using clean layered architecture and production-oriented backend development practices.
 
 ---
 
 # 🧠 Project Overview
 
-DevTrack is a backend system that allows users to:
+DevTrack enables users to:
 
-- Create activities
-- Track learning/working sessions
-- Update progress
-- Maintain structured activity history
+* Create activities
+* Track learning sessions
+* Update progress
+* Maintain structured activity history
 
-Built using real-world backend engineering principles:
+The project focuses on backend engineering concepts including:
 
-- Layered architecture
-- Separation of concerns
-- RESTful API design
-- Spring Data JPA with PostgreSQL
+* RESTful API design
+* Layered architecture
+* DTO-based API design
+* Request validation
+* Exception handling
+* Database persistence using PostgreSQL
 
 ---
 
 # 🏗️ Architecture
+
 ```text
-Controller → Service → Repository → Database
-Controller → Handles HTTP requests
-Service → Business logic
-Repository → Database operations
-PostgreSQL → Persistent storage
+Controller
+    ↓
+Validation
+    ↓
+DTO
+    ↓
+Service
+    ↓
+Repository
+    ↓
+PostgreSQL
+
++ Global Exception Handling
++ Standardized API Responses
 ```
----
-
-## ⚙️ Tech Stack
-
-- Java 21
-- Spring Boot
-- Spring Data JPA
-- Hibernate
-- PostgreSQL
-- Maven
 
 ---
 
-## ✨ Features
+# 📁 Project Structure
 
-### 🟢 Phase 1 — Completed
+```text
+src/main/java/com/aqsa/devtrack
 
-- REST APIs using Spring Boot
-- PostgreSQL integration
-- Activity entity design
-- Full CRUD operations:
-    - Create Activity
-    - Read all Activities
-    - Read by ID
-    - Update Activity
-    - Delete Activity
-- Layered backend architecture
-- End-to-end API testing via PowerShell
-
-### 🟡 Phase 2 — In Progress
-
-- DTO layer (clean API design)
-- Input validation
-- Global exception handling
-
-### 🔵 Phase 3 — Planned
-
-- JWT Authentication
-- User system
-- Role-based access control
-
-### 🔴 Phase 4 — Advanced
-
-- Analytics (streaks, stats)
-- Dashboard APIs
-- Swagger documentation
-- Deployment
+│   DevtrackApplication.java
+│
+├── controller
+│   └── ActivityController.java
+│
+├── dto
+│   ├── ActivityRequestDTO.java
+│   ├── ActivityResponseDTO.java
+│   └── ApiResponse.java
+│
+├── entity
+│   └── Activity.java
+│
+├── exception
+│   ├── GlobalExceptionHandler.java
+│   └── ResourceNotFoundException.java
+│
+├── repository
+│   └── ActivityRepository.java
+│
+└── service
+    └── ActivityService.java
+```
 
 ---
 
-## 🔌 API Endpoints
+# ⚙️ Tech Stack
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST   | `/api/activities`        | Create a new activity |
-| GET    | `/api/activities`        | Retrieve all activities |
-| GET    | `/api/activities/{id}`    | Retrieve activity by ID |
-| PUT    | `/api/activities/{id}`    | Update an existing activity |
-| DELETE | `/api/activities/{id}`    | Delete an activity |
+* Java 17
+* Spring Boot 3.2.x
+* Spring Data JPA
+* Hibernate
+* PostgreSQL
+* Maven
+* Lombok
 
 ---
 
-## ▶️ How to Run
+# ✨ Features
 
-1. Clone Repo
+## 🟢 Phase 1 — Completed
 
-```git clone https://github.com/Aqsa30nz/devtrack.git```
+### Core Backend
 
-2. Setup Database
+* REST APIs using Spring Boot
+* PostgreSQL Integration
+* Activity Entity Design
+* Layered Architecture
 
+### CRUD Operations
+
+* Create Activity
+* Get All Activities
+* Get Activity By ID
+* Update Activity
+* Delete Activity
+
+---
+
+## 🟡 Phase 2 — Completed
+
+### Clean API Design
+
+* DTO Layer
+* Request Validation
+* Global Exception Handling
+* Standardized API Responses
+
+### Validation Rules
+
+* Title cannot be empty
+* Description cannot be empty
+* Duration must be at least 1 minute
+
+---
+
+## 🔵 Phase 3 — Planned
+
+### Security
+
+* Spring Security
+* JWT Authentication
+* User Registration
+* Login API
+* Password Encryption (BCrypt)
+* Protected Endpoints
+
+---
+
+## 🔴 Phase 4 — Planned
+
+### Advanced Features
+
+* Analytics APIs
+* Dashboard APIs
+* Learning Streak Tracking
+* Activity Statistics
+* Swagger/OpenAPI Documentation
+* Deployment
+
+---
+
+# 🔌 API Endpoints
+
+| Method | Endpoint               | Description        |
+| ------ | ---------------------- | ------------------ |
+| POST   | `/api/activities`      | Create Activity    |
+| GET    | `/api/activities`      | Get All Activities |
+| GET    | `/api/activities/{id}` | Get Activity By ID |
+| PUT    | `/api/activities/{id}` | Update Activity    |
+| DELETE | `/api/activities/{id}` | Delete Activity    |
+
+---
+
+# ✅ Example Success Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "title": "DSA Practice",
+    "description": "Solved arrays problems",
+    "durationMinutes": 60,
+    "createdAt": "2026-06-21T10:47:52.9304359"
+  },
+  "message": "Activity created successfully"
+}
+```
+
+---
+
+# ❌ Example Validation Error
+
+```json
+{
+  "success": false,
+  "data": {
+    "title": "Title cannot be empty"
+  },
+  "message": "Validation failed"
+}
+```
+
+---
+
+# ❌ Example Resource Not Found Error
+
+```json
+{
+  "success": false,
+  "data": null,
+  "message": "Activity not found with id: 999999"
+}
+```
+
+---
+
+# ▶️ Running Locally
+
+## 1. Clone Repository
+
+```bash
+git clone https://github.com/Aqsa30nz/devtrack.git
+```
+
+## 2. Configure Database
+
+Add the following properties to your `application.properties`:
+
+```properties
 spring.datasource.url=jdbc:postgresql://localhost:5432/devtrack
-
 spring.datasource.username=your_username
-
 spring.datasource.password=your_password
 
-3. Run App
-
-```mvn spring-boot:run```
-
----
-
-## 🧪 Testing
-
-Use:
-
-- PowerShell → Invoke-RestMethod
-- Postman
-- CURL
-
-#### Example:
-
-####  1. API request/response 
-
-POST /api/activities
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
 ```
-Request:
-{
-"title": "DSA Practice",
-"description": "Solved arrays problems",
-"status": "IN_PROGRESS"
-}
+
+## 3. Run Application
+
+```bash
+mvn spring-boot:run
 ```
-Response:
-````
-{
-"id": 1,
-"title": "DSA Practice",
-"status": "IN_PROGRESS",
-"createdAt": "2026-06-19"
-}
-````
-#### 2. Error handling format (VERY IMPORTANT)
-````
-{
-"timestamp": "2026-06-19T10:00:00",
-"status": 404,
-"error": "Activity not found",
-"message": "No activity exists with id 5"
-}
-````
----
 
-## 📌 Project Status
+Application starts on:
 
-#### ✅ Phase 1 Completed
-
-#### 🚧 Phase 2 In Progress
-
-#### 🚧 Phase 3 Planned
-
-#### 🚧 Phase 4 Planned
+```text
+http://localhost:8080
+```
 
 ---
 
-## 🎯 Goal
+# 🧪 API Testing
+
+Tested using:
+
+* PowerShell (`Invoke-RestMethod`)
+* Postman
+* cURL
+
+Example:
+
+```powershell
+Invoke-RestMethod `
+-Uri "http://localhost:8080/api/activities" `
+-Method GET
+```
+
+---
+
+# 📌 Project Status
+
+| Phase                                   | Status      |
+| --------------------------------------- | ----------- |
+| Phase 1 - CRUD + PostgreSQL             | ✅ Completed |
+| Phase 2 - DTO + Validation + Exceptions | ✅ Completed |
+| Phase 3 - JWT Authentication            | 🚧 Planned  |
+| Phase 4 - Analytics & Deployment        | 🚧 Planned  |
+
+---
+
+# 🎯 Goal
 
 Built for:
-- Software Engineering Internships (2026–2027)
-- Backend Development roles
-- System design practice
+
+* Software Engineering Internships
+* Backend Development Roles
+* Spring Boot Learning
+* System Design Practice
+* Production-Oriented Backend Development
 
 ---
 
-## 👨‍💻 Author
+# 👨‍💻 Author
 
-#### Aqsa Naaz
-Java Backend Developer (Spring Boot)
+**Aqsa Naaz**
 
----
+Java Backend Developer | Spring Boot Enthusiast

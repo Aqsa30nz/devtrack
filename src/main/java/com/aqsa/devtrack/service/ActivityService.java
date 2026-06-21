@@ -1,11 +1,13 @@
 package com.aqsa.devtrack.service;
 
+import com.aqsa.devtrack.dto.ActivityRequestDTO;
+import com.aqsa.devtrack.dto.ActivityResponseDTO;
 import com.aqsa.devtrack.entity.Activity;
+import com.aqsa.devtrack.exception.ResourceNotFoundException;
 import com.aqsa.devtrack.repository.ActivityRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ActivityService {
@@ -16,35 +18,77 @@ public class ActivityService {
         this.activityRepository = activityRepository;
     }
 
-    // CREATE
-    public Activity createActivity(Activity activity) {
-        return activityRepository.save(activity);
+    private ActivityResponseDTO mapToResponseDTO(Activity activity) {
+        ActivityResponseDTO dto = new ActivityResponseDTO();
+
+        dto.setId(activity.getId());
+        dto.setTitle(activity.getTitle());
+        dto.setDescription(activity.getDescription());
+        dto.setDurationMinutes(activity.getDurationMinutes());
+        dto.setCreatedAt(activity.getCreatedAt());
+
+        return dto;
     }
 
-    // READ ALL
-    public List<Activity> getAllActivities() {
-        return activityRepository.findAll();
+    public ActivityResponseDTO createActivity(ActivityRequestDTO requestDTO) {
+
+        Activity activity = new Activity();
+
+        activity.setTitle(requestDTO.getTitle());
+        activity.setDescription(requestDTO.getDescription());
+        activity.setDurationMinutes(requestDTO.getDurationMinutes());
+
+        Activity savedActivity = activityRepository.save(activity);
+
+        return mapToResponseDTO(savedActivity);
     }
 
-    // READ BY ID
-    public Optional<Activity> getActivityById(Long id) {
-        return activityRepository.findById(id);
+    public List<ActivityResponseDTO> getAllActivities() {
+
+        return activityRepository.findAll()
+                .stream()
+                .map(this::mapToResponseDTO)
+                .toList();
     }
 
-    // DELETE
+    public ActivityResponseDTO getActivityById(Long id) {
+
+        Activity activity = activityRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Activity not found with id: " + id
+                        ));
+
+        return mapToResponseDTO(activity);
+    }
+
     public void deleteActivity(Long id) {
-        activityRepository.deleteById(id);
+
+        Activity activity = activityRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Activity not found with id: " + id
+                        ));
+
+        activityRepository.delete(activity);
     }
 
-    //UPDATE
-    public Activity updateActivity(Long id, Activity updatedActivity) {
+    public ActivityResponseDTO updateActivity(
+            Long id,
+            ActivityRequestDTO requestDTO) {
+
         Activity existingActivity = activityRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Activity not found with id: " + id));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Activity not found with id: " + id
+                        ));
 
-        existingActivity.setTitle(updatedActivity.getTitle());
-        existingActivity.setDescription(updatedActivity.getDescription());
-        existingActivity.setDurationMinutes(updatedActivity.getDurationMinutes());
+        existingActivity.setTitle(requestDTO.getTitle());
+        existingActivity.setDescription(requestDTO.getDescription());
+        existingActivity.setDurationMinutes(requestDTO.getDurationMinutes());
 
-        return activityRepository.save(existingActivity);
+        Activity updatedActivity = activityRepository.save(existingActivity);
+
+        return mapToResponseDTO(updatedActivity);
     }
 }
