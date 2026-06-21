@@ -1,5 +1,6 @@
 package com.aqsa.devtrack.exception;
 
+import com.aqsa.devtrack.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -13,21 +14,21 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, String>>
+    public ResponseEntity<ApiResponse<Void>>
     handleResourceNotFound(ResourceNotFoundException ex) {
 
-        Map<String, String> error = new HashMap<>();
-
-        error.put("error", ex.getMessage());
-
         return new ResponseEntity<>(
-                error,
+                new ApiResponse<>(
+                        false,
+                        null,
+                        ex.getMessage()
+                ),
                 HttpStatus.NOT_FOUND
         );
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>>
+    public ResponseEntity<ApiResponse<Map<String, String>>>
     handleValidationExceptions(
             MethodArgumentNotValidException ex) {
 
@@ -42,7 +43,11 @@ public class GlobalExceptionHandler {
                         ));
 
         return new ResponseEntity<>(
-                errors,
+                new ApiResponse<>(
+                        false,
+                        errors,
+                        "Validation failed"
+                ),
                 HttpStatus.BAD_REQUEST
         );
     }

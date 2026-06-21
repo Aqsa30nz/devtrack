@@ -1,8 +1,10 @@
 package com.aqsa.devtrack.controller;
+
 import jakarta.validation.Valid;
 
 import com.aqsa.devtrack.dto.ActivityRequestDTO;
 import com.aqsa.devtrack.dto.ActivityResponseDTO;
+import com.aqsa.devtrack.dto.ApiResponse;
 import com.aqsa.devtrack.service.ActivityService;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,36 +21,62 @@ public class ActivityController {
     }
 
     @PostMapping
-    public ActivityResponseDTO createActivity(
+    public ApiResponse<ActivityResponseDTO> createActivity(
             @Valid @RequestBody ActivityRequestDTO requestDTO) {
 
-        return activityService.createActivity(requestDTO);
+        ActivityResponseDTO activity =
+                activityService.createActivity(requestDTO);
+
+        return new ApiResponse<>(
+                true,
+                activity,
+                "Activity created successfully"
+        );
     }
 
     @GetMapping
-    public List<ActivityResponseDTO> getAllActivities() {
-        return activityService.getAllActivities();
+    public ApiResponse<List<ActivityResponseDTO>> getAllActivities() {
+
+        return new ApiResponse<>(
+                true,
+                activityService.getAllActivities(),
+                "Activities fetched successfully"
+        );
     }
 
     @GetMapping("/{id}")
-    public ActivityResponseDTO getActivityById(
+    public ApiResponse<ActivityResponseDTO> getActivityById(
             @PathVariable Long id) {
 
-        return activityService.getActivityById(id);
-    }
-
-    @DeleteMapping("/{id}")
-    public void deleteActivity(
-            @PathVariable Long id) {
-
-        activityService.deleteActivity(id);
+        return new ApiResponse<>(
+                true,
+                activityService.getActivityById(id),
+                "Activity fetched successfully"
+        );
     }
 
     @PutMapping("/{id}")
-    public ActivityResponseDTO updateActivity(
+    public ApiResponse<ActivityResponseDTO> updateActivity(
             @PathVariable Long id,
-            @RequestBody ActivityRequestDTO requestDTO) {
+            @Valid @RequestBody ActivityRequestDTO requestDTO) {
 
-        return activityService.updateActivity(id, requestDTO);
+        return new ApiResponse<>(
+                true,
+                activityService.updateActivity(id, requestDTO),
+                "Activity updated successfully"
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> deleteActivity(
+            @PathVariable Long id) {
+
+        activityService.deleteActivity(id);
+
+        return new ApiResponse<>(
+                true,
+                null,
+                "Activity deleted successfully"
+        );
     }
 }
