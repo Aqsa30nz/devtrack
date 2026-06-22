@@ -3,15 +3,21 @@ package com.aqsa.devtrack.service;
 import com.aqsa.devtrack.dto.RegisterRequestDTO;
 import com.aqsa.devtrack.entity.User;
 import com.aqsa.devtrack.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthService(UserRepository userRepository) {
+    public AuthService(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder) {
+
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User register(RegisterRequestDTO requestDTO) {
@@ -26,7 +32,12 @@ public class AuthService {
 
         user.setName(requestDTO.getName());
         user.setEmail(requestDTO.getEmail());
-        user.setPassword(requestDTO.getPassword());
+
+        user.setPassword(
+                passwordEncoder.encode(
+                        requestDTO.getPassword()
+                )
+        );
 
         user.setRole("USER");
 
