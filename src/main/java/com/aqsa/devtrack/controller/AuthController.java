@@ -2,6 +2,7 @@ package com.aqsa.devtrack.controller;
 
 import com.aqsa.devtrack.dto.LoginRequestDTO;
 import com.aqsa.devtrack.dto.RegisterRequestDTO;
+import com.aqsa.devtrack.dto.AuthResponseDTO;
 import com.aqsa.devtrack.entity.User;
 import com.aqsa.devtrack.service.AuthService;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequestDTO requestDTO) {
+    public AuthResponseDTO login(@RequestBody LoginRequestDTO requestDTO) {
         return authService.login(requestDTO);
     }
 }

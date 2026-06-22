@@ -2,6 +2,7 @@ package com.aqsa.devtrack.service;
 
 import com.aqsa.devtrack.dto.LoginRequestDTO;
 import com.aqsa.devtrack.dto.RegisterRequestDTO;
+import com.aqsa.devtrack.dto.AuthResponseDTO;
 import com.aqsa.devtrack.entity.User;
 import com.aqsa.devtrack.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,11 +13,14 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public AuthService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder) {
+                       PasswordEncoder passwordEncoder,
+                       JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     public User register(RegisterRequestDTO requestDTO) {
@@ -34,7 +38,7 @@ public class AuthService {
         return userRepository.save(user);
     }
 
-    public String login(LoginRequestDTO requestDTO) {
+    public AuthResponseDTO login(LoginRequestDTO requestDTO) {
 
         User user = userRepository.findByEmail(requestDTO.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
@@ -43,6 +47,13 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid email or password");
         }
 
-        return "Login successful for user: " + user.getEmail();
+        // ✅ FIXED LINE (IMPORTANT)
+        String token = jwtService.generateToken(user.getEmail());
+
+        return new AuthResponseDTO(
+                token,
+                user.getEmail(),
+                "Login successful"
+        );
     }
 }

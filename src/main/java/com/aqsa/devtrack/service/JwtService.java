@@ -2,6 +2,7 @@ package com.aqsa.devtrack.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
 
@@ -11,11 +12,12 @@ import java.util.Date;
 @Service
 public class JwtService {
 
-    // IMPORTANT: minimum 32 chars for HS256
+    // ⚠️ In production: move this to application.properties / env variable
     private static final String SECRET =
             "devtrack_super_secure_secret_key_which_should_be_long_enough_12345";
 
-    private static final long EXPIRATION_TIME = 1000 * 60 * 60; // 1 hour
+    // Token validity: 1 hour
+    private static final long EXPIRATION_TIME = 1000 * 60 * 60;
 
     private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
@@ -26,11 +28,11 @@ public class JwtService {
                 .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(key)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // 🔵 EXTRACT EMAIL (we will use later in filter)
+    // 🔵 EXTRACT EMAIL FROM TOKEN
     public String extractEmail(String token) {
 
         Claims claims = Jwts.parserBuilder()
@@ -42,7 +44,7 @@ public class JwtService {
         return claims.getSubject();
     }
 
-    // 🔵 VALIDATE TOKEN (we will use in security filter)
+    // 🔵 VALIDATE TOKEN
     public boolean isTokenValid(String token) {
 
         try {
