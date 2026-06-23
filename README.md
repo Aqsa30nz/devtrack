@@ -1,8 +1,8 @@
-# 🚀 DevTrack — Activity Tracking Backend System
+# 🚀 DevTrack — Secure Activity Tracking Backend System
 
-A scalable backend application built using **Spring Boot, PostgreSQL, and Java** for tracking coding and learning activities.
+A production-oriented backend application built using **Java, Spring Boot, PostgreSQL, Spring Security, and JWT Authentication** for tracking coding and learning activities.
 
-Designed using clean layered architecture and production-oriented backend development practices.
+DevTrack follows a clean layered architecture and demonstrates modern backend development practices including authentication, authorization, validation, exception handling, and database persistence.
 
 ---
 
@@ -10,39 +10,52 @@ Designed using clean layered architecture and production-oriented backend develo
 
 DevTrack enables users to:
 
-* Create activities
-* Track learning sessions
-* Update progress
+* Register and create accounts
+* Securely authenticate using JWT tokens
+* Create and manage activities
+* Track learning sessions and coding progress
 * Maintain structured activity history
+* Access only their own activities through ownership-based authorization
 
-The project focuses on backend engineering concepts including:
+The project focuses on:
 
-* RESTful API design
-* Layered architecture
-* DTO-based API design
-* Request validation
-* Exception handling
-* Database persistence using PostgreSQL
+* RESTful API Design
+* Layered Architecture
+* DTO-Based API Design
+* Request Validation
+* Global Exception Handling
+* Spring Security
+* JWT Authentication
+* Authorization & Access Control
+* PostgreSQL Integration
+* Production-Oriented Backend Development
 
 ---
 
 # 🏗️ Architecture
 
 ```text
+Client
+   ↓
+JWT Authentication
+   ↓
 Controller
-    ↓
+   ↓
 Validation
-    ↓
+   ↓
 DTO
-    ↓
+   ↓
 Service
-    ↓
+   ↓
 Repository
-    ↓
+   ↓
 PostgreSQL
 
++ Spring Security
++ JWT Filter
 + Global Exception Handling
 + Standardized API Responses
++ User Authorization
 ```
 
 ---
@@ -52,28 +65,44 @@ PostgreSQL
 ```text
 src/main/java/com/aqsa/devtrack
 
-│   DevtrackApplication.java
+│── DevtrackApplication.java
+│
+├── config
+│   └── SecurityConfig.java
 │
 ├── controller
-│   └── ActivityController.java
+│   ├── ActivityController.java
+│   └── AuthController.java
 │
 ├── dto
 │   ├── ActivityRequestDTO.java
 │   ├── ActivityResponseDTO.java
-│   └── ApiResponse.java
+│   ├── ApiResponse.java
+│   ├── AuthResponseDTO.java
+│   ├── LoginRequestDTO.java
+│   └── RegisterRequestDTO.java
 │
 ├── entity
-│   └── Activity.java
+│   ├── Activity.java
+│   └── User.java
 │
 ├── exception
 │   ├── GlobalExceptionHandler.java
-│   └── ResourceNotFoundException.java
+│   ├── ResourceNotFoundException.java
+│   └── UnauthorizedAccessException.java
 │
 ├── repository
-│   └── ActivityRepository.java
+│   ├── ActivityRepository.java
+│   └── UserRepository.java
 │
-└── service
-    └── ActivityService.java
+├── security
+│   └── JwtAuthenticationFilter.java
+│
+├── service
+│   ├── ActivityService.java
+│   ├── AuthService.java
+│   ├── CustomUserDetailsService.java
+│   └── JwtService.java
 ```
 
 ---
@@ -81,12 +110,39 @@ src/main/java/com/aqsa/devtrack
 # ⚙️ Tech Stack
 
 * Java 17
-* Spring Boot 3.2.x
+* Spring Boot 3.3.5
+* Spring Security
+* JWT (JSON Web Token)
 * Spring Data JPA
 * Hibernate
 * PostgreSQL
 * Maven
 * Lombok
+
+---
+
+# 🗄️ Database Design
+
+## User
+
+| Field    | Type   |
+| -------- | ------ |
+| id       | Long   |
+| name     | String |
+| email    | String |
+| password | String |
+| role     | String |
+
+## Activity
+
+| Field           | Type          |
+| --------------- | ------------- |
+| id              | Long          |
+| title           | String        |
+| description     | String        |
+| durationMinutes | Integer       |
+| createdAt       | LocalDateTime |
+| userId          | Long          |
 
 ---
 
@@ -128,16 +184,33 @@ src/main/java/com/aqsa/devtrack
 
 ---
 
-## 🔵 Phase 3 — Planned
+## 🔵 Phase 3 — Completed
 
-### Security
+### Authentication & Security
 
-* Spring Security
+* Spring Security Integration
 * JWT Authentication
-* User Registration
-* Login API
-* Password Encryption (BCrypt)
+* User Registration API
+* User Login API
+* BCrypt Password Encryption
+* Stateless Authentication
+* JWT Validation Filter
 * Protected Endpoints
+
+### Authorization
+
+* Activity Ownership Enforcement
+* User-Specific Activity Access
+* Unauthorized Access Protection
+* Custom Authorization Error Responses
+
+### Security Features
+
+* Password Hashing using BCrypt
+* Database-backed Authentication
+* JWT Token Generation
+* JWT Token Validation
+* Secure Route Protection
 
 ---
 
@@ -145,24 +218,103 @@ src/main/java/com/aqsa/devtrack
 
 ### Advanced Features
 
-* Analytics APIs
+* Activity Analytics APIs
 * Dashboard APIs
 * Learning Streak Tracking
-* Activity Statistics
+* User Statistics
 * Swagger/OpenAPI Documentation
-* Deployment
+* Docker Support
+* Cloud Deployment
+
+---
+
+# 🔐 Authentication Flow
+
+```text
+Register
+   ↓
+User Stored in PostgreSQL
+   ↓
+Password Encrypted with BCrypt
+   ↓
+Login
+   ↓
+JWT Token Generated
+   ↓
+Client Sends JWT Token
+   ↓
+JWT Filter Validates Token
+   ↓
+Protected APIs Accessible
+```
+
+---
+
+# 🔒 Security Architecture
+
+```text
+Request
+   ↓
+JWT Filter
+   ↓
+Extract Token
+   ↓
+Validate Token
+   ↓
+Load User Details
+   ↓
+Spring Security Context
+   ↓
+Controller Access
+```
+
+---
+
+# 🛡️ Security Highlights
+
+* JWT-based Stateless Authentication
+* BCrypt Password Hashing
+* Protected REST Endpoints
+* User Ownership Enforcement
+* Database-backed Authentication
+* Custom Authorization Handling
+* Access Control using Spring Security
 
 ---
 
 # 🔌 API Endpoints
 
-| Method | Endpoint               | Description        |
-| ------ | ---------------------- | ------------------ |
-| POST   | `/api/activities`      | Create Activity    |
-| GET    | `/api/activities`      | Get All Activities |
-| GET    | `/api/activities/{id}` | Get Activity By ID |
-| PUT    | `/api/activities/{id}` | Update Activity    |
-| DELETE | `/api/activities/{id}` | Delete Activity    |
+## Authentication APIs
+
+| Method | Endpoint             | Description   |
+| ------ | -------------------- | ------------- |
+| POST   | `/api/auth/register` | Register User |
+| POST   | `/api/auth/login`    | Login User    |
+
+---
+
+## Activity APIs
+
+| Method | Endpoint               | Description         |
+| ------ | ---------------------- | ------------------- |
+| POST   | `/api/activities`      | Create Activity     |
+| GET    | `/api/activities`      | Get User Activities |
+| GET    | `/api/activities/{id}` | Get Activity By ID  |
+| PUT    | `/api/activities/{id}` | Update Activity     |
+| DELETE | `/api/activities/{id}` | Delete Activity     |
+
+---
+
+# 📊 HTTP Status Codes
+
+| Status Code | Meaning            |
+| ----------- | ------------------ |
+| 200         | Success            |
+| 201         | Resource Created   |
+| 400         | Validation Error   |
+| 401         | Unauthorized       |
+| 403         | Forbidden          |
+| 404         | Resource Not Found |
 
 ---
 
@@ -172,11 +324,10 @@ src/main/java/com/aqsa/devtrack
 {
   "success": true,
   "data": {
-    "id": 1,
+    "id": 7,
     "title": "DSA Practice",
-    "description": "Solved arrays problems",
-    "durationMinutes": 60,
-    "createdAt": "2026-06-21T10:47:52.9304359"
+    "description": "Solved Arrays Problems",
+    "durationMinutes": 60
   },
   "message": "Activity created successfully"
 }
@@ -193,6 +344,18 @@ src/main/java/com/aqsa/devtrack
     "title": "Title cannot be empty"
   },
   "message": "Validation failed"
+}
+```
+
+---
+
+# ❌ Example Unauthorized Access Error
+
+```json
+{
+  "success": false,
+  "data": null,
+  "message": "You cannot access this activity"
 }
 ```
 
@@ -218,9 +381,7 @@ src/main/java/com/aqsa/devtrack
 git clone https://github.com/Aqsa30nz/devtrack.git
 ```
 
-## 2. Configure Database
-
-Add the following properties to your `application.properties`:
+## 2. Configure PostgreSQL
 
 ```properties
 spring.datasource.url=jdbc:postgresql://localhost:5432/devtrack
@@ -231,13 +392,19 @@ spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 ```
 
-## 3. Run Application
+## 3. Configure JWT Secret
+
+```properties
+jwt.secret=your-secret-key
+```
+
+## 4. Run Application
 
 ```bash
 mvn spring-boot:run
 ```
 
-Application starts on:
+Application runs at:
 
 ```text
 http://localhost:8080
@@ -253,36 +420,76 @@ Tested using:
 * Postman
 * cURL
 
-Example:
+---
 
-```powershell
-Invoke-RestMethod `
--Uri "http://localhost:8080/api/activities" `
--Method GET
-```
+# 🔒 Authorization Example
+
+DevTrack implements ownership-based authorization.
+
+* User A can access only their activities.
+* User B cannot access User A's activities.
+* Cross-user access attempts return HTTP 403.
+* Custom authorization exceptions are handled globally.
+
+This ensures proper user data isolation and secure access control.
+
+---
+
+# 📚 Key Concepts Implemented
+
+* Spring Security Configuration
+* JWT Authentication
+* BCrypt Password Encryption
+* Authentication Flow
+* Authorization & Ownership Checks
+* DTO Mapping
+* Validation
+* Global Exception Handling
+* JPA Relationships
+* Layered Architecture
+* Repository Pattern
+
+---
+
+# 🚀 Future Roadmap
+
+* Activity Analytics Dashboard
+* Learning Streak Tracking
+* Swagger/OpenAPI Documentation
+* Docker Containerization
+* Unit Testing (JUnit + Mockito)
+* Integration Testing
+* GitHub Actions CI/CD
+* Cloud Deployment (Render / Railway / AWS)
 
 ---
 
 # 📌 Project Status
 
-| Phase                                   | Status      |
-| --------------------------------------- | ----------- |
-| Phase 1 - CRUD + PostgreSQL             | ✅ Completed |
-| Phase 2 - DTO + Validation + Exceptions | ✅ Completed |
-| Phase 3 - JWT Authentication            | 🚧 Planned  |
-| Phase 4 - Analytics & Deployment        | 🚧 Planned  |
+| Phase                                            | Status      |
+| ------------------------------------------------ | ----------- |
+| Phase 1 - CRUD + PostgreSQL                      | ✅ Completed |
+| Phase 2 - DTO + Validation + Exceptions          | ✅ Completed |
+| Phase 3 - JWT Authentication + Authorization     | ✅ Completed |
+| Phase 4 - Analytics + Documentation + Deployment | 🚧 Planned  |
 
 ---
 
-# 🎯 Goal
+# 🎯 Learning Outcomes
 
-Built for:
+This project demonstrates:
 
-* Software Engineering Internships
-* Backend Development Roles
-* Spring Boot Learning
-* System Design Practice
-* Production-Oriented Backend Development
+* Java Backend Development
+* Spring Boot Development
+* REST API Design
+* PostgreSQL Integration
+* JWT Authentication
+* Spring Security
+* Authorization & Access Control
+* Exception Handling
+* Validation
+* Clean Architecture
+* Production-Oriented Backend Practices
 
 ---
 
@@ -290,4 +497,4 @@ Built for:
 
 **Aqsa Naaz**
 
-Java Backend Developer | Spring Boot Enthusiast
+Java Backend Developer • Spring Boot Enthusiast • Open Source Contributor
