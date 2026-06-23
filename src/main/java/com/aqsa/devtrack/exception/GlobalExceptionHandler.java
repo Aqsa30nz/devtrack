@@ -27,6 +27,20 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    public ResponseEntity<ApiResponse<Void>>
+    handleUnauthorizedAccess(UnauthorizedAccessException ex) {
+
+        return new ResponseEntity<>(
+                new ApiResponse<>(
+                        false,
+                        null,
+                        ex.getMessage()
+                ),
+                HttpStatus.FORBIDDEN
+        );
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>>
     handleValidationExceptions(

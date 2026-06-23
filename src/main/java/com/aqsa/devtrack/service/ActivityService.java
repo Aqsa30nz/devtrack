@@ -3,8 +3,13 @@ package com.aqsa.devtrack.service;
 import com.aqsa.devtrack.dto.ActivityRequestDTO;
 import com.aqsa.devtrack.dto.ActivityResponseDTO;
 import com.aqsa.devtrack.entity.Activity;
+import com.aqsa.devtrack.entity.User;
 import com.aqsa.devtrack.exception.ResourceNotFoundException;
+import com.aqsa.devtrack.exception.UnauthorizedAccessException;
 import com.aqsa.devtrack.repository.ActivityRepository;
+import com.aqsa.devtrack.repository.UserRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,12 +18,18 @@ import java.util.List;
 public class ActivityService {
 
     private final ActivityRepository activityRepository;
+    private final UserRepository userRepository;
 
-    public ActivityService(ActivityRepository activityRepository) {
+    public ActivityService(
+            ActivityRepository activityRepository,
+            UserRepository userRepository
+    ) {
         this.activityRepository = activityRepository;
+        this.userRepository = userRepository;
     }
 
     private ActivityResponseDTO mapToResponseDTO(Activity activity) {
+
         ActivityResponseDTO dto = new ActivityResponseDTO();
 
         dto.setId(activity.getId());
@@ -30,7 +41,25 @@ public class ActivityService {
         return dto;
     }
 
-    public ActivityResponseDTO createActivity(ActivityRequestDTO requestDTO) {
+    private User getCurrentUser() {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String email = authentication.getName();
+
+        return userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Authenticated user not found"
+                        ));
+    }
+
+    public ActivityResponseDTO createActivity(
+            ActivityRequestDTO requestDTO
+    ) {
+
+        User currentUser = getCurrentUser();
 
         Activity activity = new Activity();
 
@@ -38,14 +67,19 @@ public class ActivityService {
         activity.setDescription(requestDTO.getDescription());
         activity.setDurationMinutes(requestDTO.getDurationMinutes());
 
-        Activity savedActivity = activityRepository.save(activity);
+        activity.setUser(currentUser);
+
+        Activity savedActivity =
+                activityRepository.save(activity);
 
         return mapToResponseDTO(savedActivity);
     }
 
     public List<ActivityResponseDTO> getAllActivities() {
 
-        return activityRepository.findAll()
+        User currentUser = getCurrentUser();
+
+        return activityRepository.findByUser(currentUser)
                 .stream()
                 .map(this::mapToResponseDTO)
                 .toList();
@@ -53,16 +87,29 @@ public class ActivityService {
 
     public ActivityResponseDTO getActivityById(Long id) {
 
+        User currentUser = getCurrentUser();
+
         Activity activity = activityRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
                                 "Activity not found with id: " + id
                         ));
+
+        if (!activity.getUser().getId().equals(currentUser.getId())) {
+            throw new UnauthorizedAccessException(
+                    "You cannot access this activity"
+            );
+        }
 
         return mapToResponseDTO(activity);
     }
 
-    public void deleteActivity(Long id) {
+    public ActivityResponseDTO updateActivity(
+            Long id,
+            ActivityRequestDTO requestDTO
+    ) {
+
+        User currentUser = getCurrentUser();
 
         Activity activity = activityRepository.findById(id)
                 .orElseThrow(() ->
@@ -70,25 +117,38 @@ public class ActivityService {
                                 "Activity not found with id: " + id
                         ));
 
-        activityRepository.delete(activity);
+        if (!activity.getUser().getId().equals(currentUser.getId())) {
+            throw new UnauthorizedAccessException(
+                    "You cannot update this activity"
+            );
+        }
+
+        activity.setTitle(requestDTO.getTitle());
+        activity.setDescription(requestDTO.getDescription());
+        activity.setDurationMinutes(requestDTO.getDurationMinutes());
+
+        Activity updatedActivity =
+                activityRepository.save(activity);
+
+        return mapToResponseDTO(updatedActivity);
     }
 
-    public ActivityResponseDTO updateActivity(
-            Long id,
-            ActivityRequestDTO requestDTO) {
+    public void deleteActivity(Long id) {
 
-        Activity existingActivity = activityRepository.findById(id)
+        User currentUser = getCurrentUser();
+
+        Activity activity = activityRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
                                 "Activity not found with id: " + id
                         ));
 
-        existingActivity.setTitle(requestDTO.getTitle());
-        existingActivity.setDescription(requestDTO.getDescription());
-        existingActivity.setDurationMinutes(requestDTO.getDurationMinutes());
+        if (!activity.getUser().getId().equals(currentUser.getId())) {
+            throw new UnauthorizedAccessException(
+                    "You cannot delete this activity"
+            );
+        }
 
-        Activity updatedActivity = activityRepository.save(existingActivity);
-
-        return mapToResponseDTO(updatedActivity);
+        activityRepository.delete(activity);
     }
 }
