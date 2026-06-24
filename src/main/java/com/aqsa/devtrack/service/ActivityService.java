@@ -79,13 +79,24 @@ public class ActivityService {
 
     public PaginatedActivityResponseDTO getAllActivities(
             int page,
-            int size
+            int size,
+            String sort,
+            String direction
     ) {
 
         User currentUser = getCurrentUser();
 
+        org.springframework.data.domain.Sort sorting =
+                direction.equalsIgnoreCase("asc")
+                        ? org.springframework.data.domain.Sort.by(sort).ascending()
+                        : org.springframework.data.domain.Sort.by(sort).descending();
+
         Pageable pageable =
-                PageRequest.of(page, size);
+                PageRequest.of(
+                        page,
+                        size,
+                        sorting
+                );
 
         Page<Activity> activityPage =
                 activityRepository.findByUser(

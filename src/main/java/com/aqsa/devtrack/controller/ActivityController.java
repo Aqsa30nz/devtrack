@@ -40,12 +40,23 @@ public class ActivityController {
             int page,
 
             @RequestParam(defaultValue = "10")
-            int size
-    ) {
+            int size,
+
+            @RequestParam(defaultValue = "createdAt")
+            String sort,
+
+            @RequestParam(defaultValue = "desc")
+            String direction
+    )    {
 
         return new ApiResponse<>(
                 true,
-                activityService.getAllActivities(page, size),
+                activityService.getAllActivities(
+                        page,
+                        size,
+                        sort,
+                        direction
+                ),
                 "Activities fetched successfully"
         );
     }
