@@ -2,17 +2,19 @@ package com.aqsa.devtrack.service;
 
 import com.aqsa.devtrack.dto.ActivityRequestDTO;
 import com.aqsa.devtrack.dto.ActivityResponseDTO;
+import com.aqsa.devtrack.dto.PaginatedActivityResponseDTO;
 import com.aqsa.devtrack.entity.Activity;
 import com.aqsa.devtrack.entity.User;
 import com.aqsa.devtrack.exception.ResourceNotFoundException;
 import com.aqsa.devtrack.exception.UnauthorizedAccessException;
 import com.aqsa.devtrack.repository.ActivityRepository;
 import com.aqsa.devtrack.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class ActivityService {
@@ -75,14 +77,50 @@ public class ActivityService {
         return mapToResponseDTO(savedActivity);
     }
 
-    public List<ActivityResponseDTO> getAllActivities() {
+    public PaginatedActivityResponseDTO getAllActivities(
+            int page,
+            int size,
+            String sort,
+            String direction
+    ) {
 
         User currentUser = getCurrentUser();
 
-        return activityRepository.findByUser(currentUser)
-                .stream()
-                .map(this::mapToResponseDTO)
-                .toList();
+        org.springframework.data.domain.Sort sorting =
+                direction.equalsIgnoreCase("asc")
+                        ? org.springframework.data.domain.Sort.by(sort).ascending()
+                        : org.springframework.data.domain.Sort.by(sort).descending();
+
+        Pageable pageable =
+                PageRequest.of(
+                        page,
+                        size,
+                        sorting
+                );
+
+        Page<Activity> activityPage =
+                activityRepository.findByUser(
+                        currentUser,
+                        pageable
+                );
+
+        PaginatedActivityResponseDTO response =
+                new PaginatedActivityResponseDTO();
+
+        response.setActivities(
+                activityPage.getContent()
+                        .stream()
+                        .map(this::mapToResponseDTO)
+                        .toList()
+        );
+
+        response.setCurrentPage(activityPage.getNumber());
+        response.setPageSize(activityPage.getSize());
+        response.setTotalElements(activityPage.getTotalElements());
+        response.setTotalPages(activityPage.getTotalPages());
+        response.setLast(activityPage.isLast());
+
+        return response;
     }
 
     public ActivityResponseDTO getActivityById(Long id) {

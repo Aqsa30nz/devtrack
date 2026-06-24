@@ -5,10 +5,9 @@ import jakarta.validation.Valid;
 import com.aqsa.devtrack.dto.ActivityRequestDTO;
 import com.aqsa.devtrack.dto.ActivityResponseDTO;
 import com.aqsa.devtrack.dto.ApiResponse;
+import com.aqsa.devtrack.dto.PaginatedActivityResponseDTO;
 import com.aqsa.devtrack.service.ActivityService;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/activities")
@@ -35,11 +34,29 @@ public class ActivityController {
     }
 
     @GetMapping
-    public ApiResponse<List<ActivityResponseDTO>> getAllActivities() {
+    public ApiResponse<PaginatedActivityResponseDTO> getAllActivities(
+
+            @RequestParam(defaultValue = "0")
+            int page,
+
+            @RequestParam(defaultValue = "10")
+            int size,
+
+            @RequestParam(defaultValue = "createdAt")
+            String sort,
+
+            @RequestParam(defaultValue = "desc")
+            String direction
+    )    {
 
         return new ApiResponse<>(
                 true,
-                activityService.getAllActivities(),
+                activityService.getAllActivities(
+                        page,
+                        size,
+                        sort,
+                        direction
+                ),
                 "Activities fetched successfully"
         );
     }
