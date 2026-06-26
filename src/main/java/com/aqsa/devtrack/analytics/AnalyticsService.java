@@ -8,6 +8,9 @@ import com.aqsa.devtrack.exception.ResourceNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import com.aqsa.devtrack.analytics.dto.WeeklyAnalyticsDTO;
+import java.util.List;
+
 
 @Service
 public class AnalyticsService {
@@ -48,5 +51,25 @@ public class AnalyticsService {
         dto.setShortestSession(0);
 
         return dto;
+    }
+
+    public List<WeeklyAnalyticsDTO> getWeeklyAnalytics() {
+
+        User user = getCurrentUser();
+
+        List<Object[]> results =
+                activityRepository.getWeeklyAnalytics(user.getId());
+
+        return results.stream().map(row -> {
+
+            WeeklyAnalyticsDTO dto = new WeeklyAnalyticsDTO();
+
+            dto.setWeekLabel((String) row[0]);
+            dto.setTotalActivities((Long) row[1]);
+            dto.setTotalMinutes((Long) row[2]);
+
+            return dto;
+
+        }).toList();
     }
 }
