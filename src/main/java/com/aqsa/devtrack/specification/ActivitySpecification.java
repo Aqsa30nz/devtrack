@@ -11,8 +11,7 @@ import java.util.List;
 
 public class ActivitySpecification {
 
-    private ActivitySpecification() {
-    }
+    private ActivitySpecification() {}
 
     public static Specification<Activity> withFilters(
             ActivityFilterDTO filter,
@@ -23,61 +22,57 @@ public class ActivitySpecification {
 
             List<Predicate> predicates = new ArrayList<>();
 
-            // Security constraint (always applied)
-            predicates.add(
-                    cb.equal(root.get("user"), currentUser)
-            );
+            // Always enforce user isolation (SECURITY BASELINE)
+            predicates.add(cb.equal(root.get("user"), currentUser));
 
-            // Duration filters
-            if (filter != null) {
-
-                if (filter.getMinDuration() != null) {
-                    predicates.add(
-                            cb.greaterThanOrEqualTo(
-                                    root.get("durationMinutes"),
-                                    filter.getMinDuration()
-                            )
-                    );
-                }
-
-                if (filter != null) {
-
-                    // existing duration filters already here
-
-                    if (filter.getStartDate() != null) {
-                        predicates.add(
-                                cb.greaterThanOrEqualTo(
-                                        root.get("createdAt"),
-                                        filter.getStartDate()
-                                )
-                        );
-                    }
-
-                    if (filter.getEndDate() != null) {
-                        predicates.add(
-                                cb.lessThanOrEqualTo(
-                                        root.get("createdAt"),
-                                        filter.getEndDate()
-                                )
-                        );
-                    }
-                }
+            if (filter == null) {
+                return cb.and(predicates.toArray(new Predicate[0]));
             }
 
-            if (filter != null && filter.getKeyword() != null && !filter.getKeyword().isBlank()) {
+            if (filter.getMinDuration() != null) {
+                predicates.add(
+                        cb.greaterThanOrEqualTo(
+                                root.get("durationMinutes"),
+                                filter.getMinDuration()
+                        )
+                );
+            }
+
+            if (filter.getMaxDuration() != null) {
+                predicates.add(
+                        cb.lessThanOrEqualTo(
+                                root.get("durationMinutes"),
+                                filter.getMaxDuration()
+                        )
+                );
+            }
+
+            if (filter.getStartDate() != null) {
+                predicates.add(
+                        cb.greaterThanOrEqualTo(
+                                root.get("createdAt"),
+                                filter.getStartDate()
+                        )
+                );
+            }
+
+            if (filter.getEndDate() != null) {
+                predicates.add(
+                        cb.lessThanOrEqualTo(
+                                root.get("createdAt"),
+                                filter.getEndDate()
+                        )
+                );
+            }
+
+            if (filter.getKeyword() != null && !filter.getKeyword().isBlank()) {
 
                 String keywordPattern = "%" + filter.getKeyword().toLowerCase() + "%";
 
                 predicates.add(
                         cb.or(
-                                cb.like(
-                                        cb.lower(root.get("title")),
-                                        keywordPattern
-                                ),
-                                cb.like(
-                                        cb.lower(root.get("description")),
-                                        keywordPattern
-                                )
+                                cb.like(cb.lower(root.get("title")), keywordPattern),
+                                cb.like(cb.lower(root.get("description")), keywordPattern)
                         )
                 );
             }
