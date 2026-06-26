@@ -15,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import com.aqsa.devtrack.dto.ActivityFilterDTO;
+import com.aqsa.devtrack.specification.ActivitySpecification;
 
 @Service
 public class ActivityService {
@@ -78,6 +80,7 @@ public class ActivityService {
     }
 
     public PaginatedActivityResponseDTO getAllActivities(
+            ActivityFilterDTO filter,
             int page,
             int size,
             String sort,
@@ -91,21 +94,15 @@ public class ActivityService {
                         ? org.springframework.data.domain.Sort.by(sort).ascending()
                         : org.springframework.data.domain.Sort.by(sort).descending();
 
-        Pageable pageable =
-                PageRequest.of(
-                        page,
-                        size,
-                        sorting
-                );
+        Pageable pageable = PageRequest.of(page, size, sorting);
+
+        var specification =
+                ActivitySpecification.withFilters(filter, currentUser);
 
         Page<Activity> activityPage =
-                activityRepository.findByUser(
-                        currentUser,
-                        pageable
-                );
+                activityRepository.findAll(specification, pageable);
 
-        PaginatedActivityResponseDTO response =
-                new PaginatedActivityResponseDTO();
+        PaginatedActivityResponseDTO response = new PaginatedActivityResponseDTO();
 
         response.setActivities(
                 activityPage.getContent()

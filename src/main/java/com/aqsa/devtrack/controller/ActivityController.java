@@ -6,6 +6,7 @@ import com.aqsa.devtrack.dto.ActivityRequestDTO;
 import com.aqsa.devtrack.dto.ActivityResponseDTO;
 import com.aqsa.devtrack.dto.ApiResponse;
 import com.aqsa.devtrack.dto.PaginatedActivityResponseDTO;
+import com.aqsa.devtrack.dto.ActivityFilterDTO;
 import com.aqsa.devtrack.service.ActivityService;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,12 +24,9 @@ public class ActivityController {
     public ApiResponse<ActivityResponseDTO> createActivity(
             @Valid @RequestBody ActivityRequestDTO requestDTO) {
 
-        ActivityResponseDTO activity =
-                activityService.createActivity(requestDTO);
-
         return new ApiResponse<>(
                 true,
-                activity,
+                activityService.createActivity(requestDTO),
                 "Activity created successfully"
         );
     }
@@ -36,22 +34,23 @@ public class ActivityController {
     @GetMapping
     public ApiResponse<PaginatedActivityResponseDTO> getAllActivities(
 
-            @RequestParam(defaultValue = "0")
-            int page,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sort,
+            @RequestParam(defaultValue = "desc") String direction,
 
-            @RequestParam(defaultValue = "10")
-            int size,
+            @RequestParam(required = false) Integer minDuration,
+            @RequestParam(required = false) Integer maxDuration
+    ) {
 
-            @RequestParam(defaultValue = "createdAt")
-            String sort,
-
-            @RequestParam(defaultValue = "desc")
-            String direction
-    )    {
+        ActivityFilterDTO filter = new ActivityFilterDTO();
+        filter.setMinDuration(minDuration);
+        filter.setMaxDuration(maxDuration);
 
         return new ApiResponse<>(
                 true,
                 activityService.getAllActivities(
+                        filter,
                         page,
                         size,
                         sort,
