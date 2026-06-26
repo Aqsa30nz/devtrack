@@ -186,4 +186,5 @@ public class ActivityService {
 
         activityRepository.delete(activity);
     }
+
 }

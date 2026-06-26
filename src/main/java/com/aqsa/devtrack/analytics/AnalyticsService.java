@@ -10,6 +10,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import com.aqsa.devtrack.analytics.dto.WeeklyAnalyticsDTO;
 import com.aqsa.devtrack.analytics.dto.MonthlyAnalyticsDTO;
+import com.aqsa.devtrack.analytics.dto.LearningStreakDTO;
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -94,5 +96,52 @@ public class AnalyticsService {
         }).toList();
     }
 
+    public LearningStreakDTO getStreak() {
+
+        User user = getCurrentUser();
+
+        List<LocalDate> dates = activityRepository
+                .findActiveDates(user.getId())
+                .stream()
+                .map(java.sql.Date::toLocalDate)
+                .toList();
+
+        LearningStreakDTO dto = new LearningStreakDTO();
+
+        if (dates.isEmpty()) {
+            dto.setCurrentStreak(0);
+            dto.setLongestStreak(0);
+            dto.setTotalActiveDays(0);
+            return dto;
+        }
+
+        int currentStreak = 0;
+        int longestStreak = 1;
+        int tempStreak = 1;
+
+        LocalDate today = LocalDate.now();
+        LocalDate cursor = today;
+
+        while (dates.contains(cursor)) {
+            currentStreak++;
+            cursor = cursor.minusDays(1);
+        }
+
+        for (int i = 1; i < dates.size(); i++) {
+
+            if (dates.get(i).minusDays(1).equals(dates.get(i - 1))) {
+                tempStreak++;
+                longestStreak = Math.max(longestStreak, tempStreak);
+            } else {
+                tempStreak = 1;
+            }
+        }
+
+        dto.setCurrentStreak(currentStreak);
+        dto.setLongestStreak(longestStreak);
+        dto.setTotalActiveDays(dates.size());
+
+        return dto;
+    }
 
 }

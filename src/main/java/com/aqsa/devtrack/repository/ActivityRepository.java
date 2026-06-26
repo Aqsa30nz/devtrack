@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -43,6 +44,14 @@ public interface ActivityRepository extends
     ORDER BY month DESC
 """)
     List<Object[]> getMonthlyAnalytics(@Param("userId") Long userId);
+
+    @Query("""
+    SELECT DISTINCT CAST(a.createdAt AS date)
+    FROM Activity a
+    WHERE a.user.id = :userId
+    ORDER BY CAST(a.createdAt AS date) ASC
+""")
+    List<java.sql.Date> findActiveDates(@Param("userId") Long userId);
 
 }
 

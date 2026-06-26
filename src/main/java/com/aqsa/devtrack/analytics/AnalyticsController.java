@@ -5,6 +5,7 @@ import com.aqsa.devtrack.dto.ApiResponse;
 import org.springframework.web.bind.annotation.*;
 import com.aqsa.devtrack.analytics.dto.WeeklyAnalyticsDTO;
 import com.aqsa.devtrack.analytics.dto.MonthlyAnalyticsDTO;
+import com.aqsa.devtrack.analytics.dto.LearningStreakDTO;
 import java.util.List;
 
 
@@ -48,5 +49,14 @@ public class AnalyticsController {
         );
     }
 
+    @GetMapping("/streak")
+    public ApiResponse<LearningStreakDTO> getStreak() {
+
+        return new ApiResponse<>(
+                true,
+                analyticsService.getStreak(),
+                "Learning streak fetched successfully"
+        );
+    }
 
 }
