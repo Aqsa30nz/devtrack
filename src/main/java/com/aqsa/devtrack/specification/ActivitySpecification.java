@@ -64,6 +64,24 @@ public class ActivitySpecification {
                 }
             }
 
+            if (filter != null && filter.getKeyword() != null && !filter.getKeyword().isBlank()) {
+
+                String keywordPattern = "%" + filter.getKeyword().toLowerCase() + "%";
+
+                predicates.add(
+                        cb.or(
+                                cb.like(
+                                        cb.lower(root.get("title")),
+                                        keywordPattern
+                                ),
+                                cb.like(
+                                        cb.lower(root.get("description")),
+                                        keywordPattern
+                                )
+                        )
+                );
+            }
+
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }

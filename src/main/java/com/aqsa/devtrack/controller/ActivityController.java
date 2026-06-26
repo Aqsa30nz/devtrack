@@ -40,12 +40,15 @@ public class ActivityController {
             @RequestParam(defaultValue = "desc") String direction,
 
             @RequestParam(required = false) Integer minDuration,
-            @RequestParam(required = false) Integer maxDuration
+            @RequestParam(required = false) Integer maxDuration,
+
+            @RequestParam(required = false) String keyword
     ) {
 
         ActivityFilterDTO filter = new ActivityFilterDTO();
         filter.setMinDuration(minDuration);
         filter.setMaxDuration(maxDuration);
+        filter.setKeyword(keyword);
 
         return new ApiResponse<>(
                 true,

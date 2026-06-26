@@ -12,4 +12,6 @@ public class ActivityFilterDTO {
 
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+
+    private String keyword;
 }
