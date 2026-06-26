@@ -1,0 +1,30 @@
+package com.aqsa.devtrack.dashboard;
+
+import com.aqsa.devtrack.dashboard.dto.DashboardResponseDTO;
+import com.aqsa.devtrack.dto.ApiResponse;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/dashboard")
+public class DashboardController {
+
+    private final DashboardService dashboardService;
+
+    public DashboardController(
+            DashboardService dashboardService
+    ) {
+        this.dashboardService = dashboardService;
+    }
+
+    @GetMapping
+    public ApiResponse<DashboardResponseDTO> getDashboard() {
+
+        return new ApiResponse<>(
+                true,
+                dashboardService.getDashboard(),
+                "Dashboard fetched successfully"
+        );
+    }
+}

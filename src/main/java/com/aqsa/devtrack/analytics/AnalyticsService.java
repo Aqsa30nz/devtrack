@@ -1,0 +1,159 @@
+package com.aqsa.devtrack.analytics;
+
+import com.aqsa.devtrack.analytics.dto.AnalyticsSummaryDTO;
+import com.aqsa.devtrack.entity.User;
+import com.aqsa.devtrack.repository.ActivityRepository;
+import com.aqsa.devtrack.repository.UserRepository;
+import com.aqsa.devtrack.exception.ResourceNotFoundException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import com.aqsa.devtrack.analytics.dto.WeeklyAnalyticsDTO;
+import com.aqsa.devtrack.analytics.dto.MonthlyAnalyticsDTO;
+import com.aqsa.devtrack.analytics.dto.LearningStreakDTO;
+import java.time.LocalDate;
+import java.util.List;
+
+
+@Service
+public class AnalyticsService {
+
+    private final ActivityRepository activityRepository;
+    private final UserRepository userRepository;
+
+    public AnalyticsService(ActivityRepository activityRepository,
+                            UserRepository userRepository) {
+        this.activityRepository = activityRepository;
+        this.userRepository = userRepository;
+    }
+
+    private User getCurrentUser() {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String email = authentication.getName();
+
+        return userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+    }
+
+    public AnalyticsSummaryDTO getSummary() {
+
+        User user = getCurrentUser();
+
+        AnalyticsSummaryDTO dto = new AnalyticsSummaryDTO();
+
+        dto.setTotalActivities(
+                activityRepository.getTotalActivities(user.getId())
+        );
+
+        dto.setTotalMinutes(
+                activityRepository.getTotalMinutes(user.getId())
+        );
+
+        dto.setAverageSession(
+                activityRepository.getAverageSession(user.getId())
+        );
+
+        dto.setLongestSession(
+                activityRepository.getLongestSession(user.getId())
+        );
+
+        dto.setShortestSession(
+                activityRepository.getShortestSession(user.getId())
+        );
+
+        return dto;
+    }
+
+    public List<WeeklyAnalyticsDTO> getWeeklyAnalytics() {
+
+        User user = getCurrentUser();
+
+        List<Object[]> results =
+                activityRepository.getWeeklyAnalytics(user.getId());
+
+        return results.stream().map(row -> {
+
+            WeeklyAnalyticsDTO dto = new WeeklyAnalyticsDTO();
+
+            dto.setWeekLabel((String) row[0]);
+            dto.setTotalActivities((Long) row[1]);
+            dto.setTotalMinutes((Long) row[2]);
+
+            return dto;
+
+        }).toList();
+    }
+
+    public List<MonthlyAnalyticsDTO> getMonthlyAnalytics() {
+
+        User user = getCurrentUser();
+
+        List<Object[]> results =
+                activityRepository.getMonthlyAnalytics(user.getId());
+
+        return results.stream().map(row -> {
+
+            MonthlyAnalyticsDTO dto = new MonthlyAnalyticsDTO();
+
+            dto.setMonthLabel((String) row[0]);
+            dto.setTotalActivities((Long) row[1]);
+            dto.setTotalMinutes((Long) row[2]);
+
+            return dto;
+
+        }).toList();
+    }
+
+    public LearningStreakDTO getStreak() {
+
+        User user = getCurrentUser();
+
+        List<LocalDate> dates = activityRepository
+                .findActiveDates(user.getId())
+                .stream()
+                .map(java.sql.Date::toLocalDate)
+                .toList();
+
+        LearningStreakDTO dto = new LearningStreakDTO();
+
+        if (dates.isEmpty()) {
+            dto.setCurrentStreak(0);
+            dto.setLongestStreak(0);
+            dto.setTotalActiveDays(0);
+            return dto;
+        }
+
+        int currentStreak = 0;
+        int longestStreak = 1;
+        int tempStreak = 1;
+
+        LocalDate today = LocalDate.now();
+        LocalDate cursor = today;
+
+        while (dates.contains(cursor)) {
+            currentStreak++;
+            cursor = cursor.minusDays(1);
+        }
+
+        for (int i = 1; i < dates.size(); i++) {
+
+            if (dates.get(i).minusDays(1).equals(dates.get(i - 1))) {
+                tempStreak++;
+                longestStreak = Math.max(longestStreak, tempStreak);
+            } else {
+                tempStreak = 1;
+            }
+        }
+
+        dto.setCurrentStreak(currentStreak);
+        dto.setLongestStreak(longestStreak);
+        dto.setTotalActiveDays(dates.size());
+
+        return dto;
+    }
+
+}
