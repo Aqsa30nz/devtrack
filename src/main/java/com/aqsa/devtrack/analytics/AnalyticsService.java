@@ -43,15 +43,27 @@ public class AnalyticsService {
 
         User user = getCurrentUser();
 
-        Long totalMinutes = activityRepository.getTotalMinutes(user.getId());
-
         AnalyticsSummaryDTO dto = new AnalyticsSummaryDTO();
 
-        dto.setTotalActivities(0); // we will improve next step
-        dto.setTotalMinutes(totalMinutes != null ? totalMinutes : 0);
-        dto.setAverageSession(0);
-        dto.setLongestSession(0);
-        dto.setShortestSession(0);
+        dto.setTotalActivities(
+                activityRepository.getTotalActivities(user.getId())
+        );
+
+        dto.setTotalMinutes(
+                activityRepository.getTotalMinutes(user.getId())
+        );
+
+        dto.setAverageSession(
+                activityRepository.getAverageSession(user.getId())
+        );
+
+        dto.setLongestSession(
+                activityRepository.getLongestSession(user.getId())
+        );
+
+        dto.setShortestSession(
+                activityRepository.getShortestSession(user.getId())
+        );
 
         return dto;
     }

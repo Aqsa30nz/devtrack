@@ -6,9 +6,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import java.time.LocalDate;
-import java.util.List;
 
+import java.util.List;
 
 @Repository
 public interface ActivityRepository extends
@@ -16,43 +15,69 @@ public interface ActivityRepository extends
         JpaSpecificationExecutor<Activity> {
 
     @Query("""
-    SELECT COALESCE(SUM(a.durationMinutes), 0)
-    FROM Activity a
-    WHERE a.user.id = :userId
-""")
-    Long getTotalMinutes(@Param("userId") Long userId);
+        SELECT COUNT(a)
+        FROM Activity a
+        WHERE a.user.id = :userId
+        """)
+    Long getTotalActivities(@Param("userId") Long userId);
+
     @Query("""
-    SELECT
-        FUNCTION('to_char', a.createdAt, 'YYYY-"W"IW') as week,
-        COUNT(a),
-        COALESCE(SUM(a.durationMinutes), 0)
-    FROM Activity a
-    WHERE a.user.id = :userId
-    GROUP BY FUNCTION('to_char', a.createdAt, 'YYYY-"W"IW')
-    ORDER BY week DESC
-""")
+        SELECT COALESCE(SUM(a.durationMinutes), 0)
+        FROM Activity a
+        WHERE a.user.id = :userId
+        """)
+    Long getTotalMinutes(@Param("userId") Long userId);
+
+    @Query("""
+        SELECT COALESCE(AVG(a.durationMinutes), 0)
+        FROM Activity a
+        WHERE a.user.id = :userId
+        """)
+    Double getAverageSession(@Param("userId") Long userId);
+
+    @Query("""
+        SELECT COALESCE(MAX(a.durationMinutes), 0)
+        FROM Activity a
+        WHERE a.user.id = :userId
+        """)
+    Integer getLongestSession(@Param("userId") Long userId);
+
+    @Query("""
+        SELECT COALESCE(MIN(a.durationMinutes), 0)
+        FROM Activity a
+        WHERE a.user.id = :userId
+        """)
+    Integer getShortestSession(@Param("userId") Long userId);
+
+    @Query("""
+        SELECT
+            FUNCTION('to_char', a.createdAt, 'YYYY-"W"IW') as week,
+            COUNT(a),
+            COALESCE(SUM(a.durationMinutes), 0)
+        FROM Activity a
+        WHERE a.user.id = :userId
+        GROUP BY FUNCTION('to_char', a.createdAt, 'YYYY-"W"IW')
+        ORDER BY week DESC
+        """)
     List<Object[]> getWeeklyAnalytics(@Param("userId") Long userId);
 
     @Query("""
-    SELECT
-        FUNCTION('to_char', a.createdAt, 'YYYY-MM') as month,
-        COUNT(a),
-        COALESCE(SUM(a.durationMinutes), 0)
-    FROM Activity a
-    WHERE a.user.id = :userId
-    GROUP BY FUNCTION('to_char', a.createdAt, 'YYYY-MM')
-    ORDER BY month DESC
-""")
+        SELECT
+            FUNCTION('to_char', a.createdAt, 'YYYY-MM') as month,
+            COUNT(a),
+            COALESCE(SUM(a.durationMinutes), 0)
+        FROM Activity a
+        WHERE a.user.id = :userId
+        GROUP BY FUNCTION('to_char', a.createdAt, 'YYYY-MM')
+        ORDER BY month DESC
+        """)
     List<Object[]> getMonthlyAnalytics(@Param("userId") Long userId);
 
     @Query("""
-    SELECT DISTINCT CAST(a.createdAt AS date)
-    FROM Activity a
-    WHERE a.user.id = :userId
-    ORDER BY CAST(a.createdAt AS date) ASC
-""")
+        SELECT DISTINCT CAST(a.createdAt AS date)
+        FROM Activity a
+        WHERE a.user.id = :userId
+        ORDER BY CAST(a.createdAt AS date) ASC
+        """)
     List<java.sql.Date> findActiveDates(@Param("userId") Long userId);
-
 }
-
-
