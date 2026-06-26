@@ -22,7 +22,6 @@ public class ActivitySpecification {
 
             List<Predicate> predicates = new ArrayList<>();
 
-            // Always enforce user isolation (SECURITY BASELINE)
             predicates.add(cb.equal(root.get("user"), currentUser));
 
             if (filter == null) {

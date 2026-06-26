@@ -2,7 +2,6 @@ package com.aqsa.devtrack.dashboard;
 
 import com.aqsa.devtrack.analytics.AnalyticsService;
 import com.aqsa.devtrack.dashboard.dto.DashboardResponseDTO;
-import com.aqsa.devtrack.dto.ActivityResponseDTO;
 import com.aqsa.devtrack.dto.PaginatedActivityResponseDTO;
 import com.aqsa.devtrack.dto.ActivityFilterDTO;
 import com.aqsa.devtrack.service.ActivityService;
