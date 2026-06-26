@@ -11,57 +11,38 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@SuppressWarnings("unused")
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiResponse<Void>>
-    handleResourceNotFound(ResourceNotFoundException ex) {
+    public ResponseEntity<ApiResponse<Void>> handleResourceNotFound(ResourceNotFoundException ex) {
 
         return new ResponseEntity<>(
-                new ApiResponse<>(
-                        false,
-                        null,
-                        ex.getMessage()
-                ),
+                new ApiResponse<>(false, null, ex.getMessage()),
                 HttpStatus.NOT_FOUND
         );
     }
 
     @ExceptionHandler(UnauthorizedAccessException.class)
-    public ResponseEntity<ApiResponse<Void>>
-    handleUnauthorizedAccess(UnauthorizedAccessException ex) {
+    public ResponseEntity<ApiResponse<Void>> handleUnauthorizedAccess(UnauthorizedAccessException ex) {
 
         return new ResponseEntity<>(
-                new ApiResponse<>(
-                        false,
-                        null,
-                        ex.getMessage()
-                ),
+                new ApiResponse<>(false, null, ex.getMessage()),
                 HttpStatus.FORBIDDEN
         );
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>>
-    handleValidationExceptions(
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationExceptions(
             MethodArgumentNotValidException ex) {
 
         Map<String, String> errors = new HashMap<>();
 
-        ex.getBindingResult()
-                .getFieldErrors()
-                .forEach(error ->
-                        errors.put(
-                                error.getField(),
-                                error.getDefaultMessage()
-                        ));
+        ex.getBindingResult().getFieldErrors()
+                .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
 
         return new ResponseEntity<>(
-                new ApiResponse<>(
-                        false,
-                        errors,
-                        "Validation failed"
-                ),
+                new ApiResponse<>(false, errors, "Validation failed"),
                 HttpStatus.BAD_REQUEST
         );
     }
