@@ -31,4 +31,19 @@ public interface ActivityRepository extends
     ORDER BY week DESC
 """)
     List<Object[]> getWeeklyAnalytics(@Param("userId") Long userId);
+
+    @Query("""
+    SELECT
+        FUNCTION('to_char', a.createdAt, 'YYYY-MM') as month,
+        COUNT(a),
+        COALESCE(SUM(a.durationMinutes), 0)
+    FROM Activity a
+    WHERE a.user.id = :userId
+    GROUP BY FUNCTION('to_char', a.createdAt, 'YYYY-MM')
+    ORDER BY month DESC
+""")
+    List<Object[]> getMonthlyAnalytics(@Param("userId") Long userId);
+
 }
+
+

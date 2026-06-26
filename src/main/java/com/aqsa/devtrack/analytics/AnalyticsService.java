@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import com.aqsa.devtrack.analytics.dto.WeeklyAnalyticsDTO;
+import com.aqsa.devtrack.analytics.dto.MonthlyAnalyticsDTO;
 import java.util.List;
 
 
@@ -72,4 +73,26 @@ public class AnalyticsService {
 
         }).toList();
     }
+
+    public List<MonthlyAnalyticsDTO> getMonthlyAnalytics() {
+
+        User user = getCurrentUser();
+
+        List<Object[]> results =
+                activityRepository.getMonthlyAnalytics(user.getId());
+
+        return results.stream().map(row -> {
+
+            MonthlyAnalyticsDTO dto = new MonthlyAnalyticsDTO();
+
+            dto.setMonthLabel((String) row[0]);
+            dto.setTotalActivities((Long) row[1]);
+            dto.setTotalMinutes((Long) row[2]);
+
+            return dto;
+
+        }).toList();
+    }
+
+
 }

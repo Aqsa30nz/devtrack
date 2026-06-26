@@ -3,8 +3,10 @@ package com.aqsa.devtrack.analytics;
 import com.aqsa.devtrack.analytics.dto.AnalyticsSummaryDTO;
 import com.aqsa.devtrack.dto.ApiResponse;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 import com.aqsa.devtrack.analytics.dto.WeeklyAnalyticsDTO;
+import com.aqsa.devtrack.analytics.dto.MonthlyAnalyticsDTO;
+import java.util.List;
+
 
 
 @RestController
@@ -35,4 +37,16 @@ public class AnalyticsController {
                 "Weekly analytics fetched successfully"
         );
     }
+
+    @GetMapping("/monthly")
+    public ApiResponse<List<MonthlyAnalyticsDTO>> getMonthly() {
+
+        return new ApiResponse<>(
+                true,
+                analyticsService.getMonthlyAnalytics(),
+                "Monthly analytics fetched successfully"
+        );
+    }
+
+
 }
