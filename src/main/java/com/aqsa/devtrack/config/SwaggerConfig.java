@@ -1,7 +1,6 @@
 package com.aqsa.devtrack.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
@@ -24,11 +23,6 @@ public class SwaggerConfig {
                                 .version("1.0")
                                 .description(
                                         "REST API for tracking learning activities, analytics, and dashboard insights."
-                                )
-                                .contact(
-                                        new Contact()
-                                                .name("Aqsa Naaz")
-                                                .email("aqsa@example.com")
                                 )
                 )
 
