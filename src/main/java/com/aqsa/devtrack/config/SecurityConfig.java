@@ -25,19 +25,22 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
+                // ✅ disable CSRF for REST APIs
                 .csrf(csrf -> csrf.disable())
 
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                // ✅ stateless JWT system
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // ✅ PUBLIC ROUTES
+                        // 🔥 MUST BE FIRST (VERY IMPORTANT)
+                        .requestMatchers("/api/auth/**").permitAll()
+
                         .requestMatchers(
                                 "/",
-                                "/health",
-                                "/api/auth/**"
+                                "/health"
                         ).permitAll()
 
                         .requestMatchers(
@@ -48,10 +51,11 @@ public class SecurityConfig {
                                 "/webjars/**"
                         ).permitAll()
 
-                        // everything else secured
+                        // everything else protected
                         .anyRequest().authenticated()
                 )
 
+                // ✅ JWT filter
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
