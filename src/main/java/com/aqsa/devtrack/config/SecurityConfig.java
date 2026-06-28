@@ -25,39 +25,33 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                // Disable CSRF for stateless REST APIs
                 .csrf(csrf -> csrf.disable())
 
-                // Stateless session (JWT-based auth)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                // Authorization rules
                 .authorizeHttpRequests(auth -> auth
 
-                        // Public endpoints (CRITICAL for Render + testing)
+                        // ✅ PUBLIC ROUTES
                         .requestMatchers(
                                 "/",
                                 "/health",
                                 "/api/auth/**"
                         ).permitAll()
 
-                        // Swagger / OpenAPI (public)
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
-                                "/v3/api-docs",
                                 "/swagger-resources/**",
                                 "/webjars/**"
                         ).permitAll()
 
-                        // Everything else secured
+                        // everything else secured
                         .anyRequest().authenticated()
                 )
 
-                // JWT filter before Spring Security auth filter
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
@@ -66,13 +60,11 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // Password hashing
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Authentication manager (used for login)
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration config
