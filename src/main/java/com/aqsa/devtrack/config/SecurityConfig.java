@@ -35,13 +35,9 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // 🔥 MUST BE FIRST (VERY IMPORTANT)
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        .requestMatchers(
-                                "/",
-                                "/health"
-                        ).permitAll()
+                        .requestMatchers("/", "/health").permitAll()
 
                         .requestMatchers(
                                 "/swagger-ui/**",
@@ -51,7 +47,8 @@ public class SecurityConfig {
                                 "/webjars/**"
                         ).permitAll()
 
-                        // everything else protected
+                        .requestMatchers("/error").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .anyRequest().authenticated()
                 )
 

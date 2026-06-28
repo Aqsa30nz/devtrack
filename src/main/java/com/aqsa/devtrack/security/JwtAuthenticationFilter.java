@@ -37,13 +37,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String path = request.getRequestURI();
-
-        // ✅ HARD EXCLUSION (MOST IMPORTANT FIX)
-        if (isPublicPath(path)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         String authHeader = request.getHeader("Authorization");
 
@@ -82,13 +75,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private boolean isPublicPath(String path) {
-        return path.equals("/")
-                || path.equals("/health")
-                || path.startsWith("/api/auth/")
-                || path.startsWith("/swagger")
-                || path.startsWith("/swagger-ui")
-                || path.startsWith("/v3/api-docs")
-                || path.startsWith("/webjars");
-    }
 }
