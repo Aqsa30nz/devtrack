@@ -37,21 +37,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String path = request.getServletPath();
+        String path = request.getRequestURI();
 
-        // ✅ 1. Explicitly skip public endpoints (VERY IMPORTANT for Render + Swagger + root)
-        if (path.equals("/")
-                || path.equals("/health")
-                || path.startsWith("/api/auth")
-                || path.startsWith("/swagger")
-                || path.startsWith("/v3/api-docs")
-                || path.startsWith("/swagger-ui")) {
-
+        // ✅ HARD EXCLUSION (MOST IMPORTANT FIX)
+        if (isPublicPath(path)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // ✅ 2. Check Authorization header
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -61,7 +54,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = authHeader.substring(7);
 
-        // ⚠️ 3. Validate token safely
         if (!jwtService.isTokenValid(token)) {
             filterChain.doFilter(request, response);
             return;
@@ -71,7 +63,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         User user = userRepository.findByEmail(email).orElse(null);
 
-        // ✅ 4. Set authentication context only if valid
         if (user != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             UsernamePasswordAuthenticationToken authToken =
@@ -89,5 +80,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isPublicPath(String path) {
+        return path.equals("/")
+                || path.equals("/health")
+                || path.startsWith("/api/auth/")
+                || path.startsWith("/swagger")
+                || path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs")
+                || path.startsWith("/webjars");
     }
 }
