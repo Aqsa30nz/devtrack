@@ -22,18 +22,28 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)
-            throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
+                // Disable CSRF for stateless REST APIs
                 .csrf(csrf -> csrf.disable())
 
+                // Stateless session (JWT-based auth)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+
+                // Authorization rules
                 .authorizeHttpRequests(auth -> auth
 
-                        // Public endpoints
-                        .requestMatchers("/api/auth/**").permitAll()
+                        // Public endpoints (CRITICAL for Render + testing)
+                        .requestMatchers(
+                                "/",
+                                "/health",
+                                "/api/auth/**"
+                        ).permitAll()
 
-                        // Swagger/OpenAPI
+                        // Swagger / OpenAPI (public)
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
@@ -43,14 +53,11 @@ public class SecurityConfig {
                                 "/webjars/**"
                         ).permitAll()
 
-                        // Everything else requires JWT
+                        // Everything else secured
                         .anyRequest().authenticated()
                 )
 
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-
+                // JWT filter before Spring Security auth filter
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
@@ -59,16 +66,17 @@ public class SecurityConfig {
         return http.build();
     }
 
+    // Password hashing
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // Authentication manager (used for login)
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration config
     ) throws Exception {
-
         return config.getAuthenticationManager();
     }
 }
