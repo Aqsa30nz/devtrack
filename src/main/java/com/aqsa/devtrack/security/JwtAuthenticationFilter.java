@@ -37,6 +37,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
+        String path = request.getServletPath();
+
+        // ✅ 1. Explicitly skip public endpoints (VERY IMPORTANT for Render + Swagger + root)
+        if (path.equals("/")
+                || path.equals("/health")
+                || path.startsWith("/api/auth")
+                || path.startsWith("/swagger")
+                || path.startsWith("/v3/api-docs")
+                || path.startsWith("/swagger-ui")) {
+
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // ✅ 2. Check Authorization header
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -46,6 +61,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = authHeader.substring(7);
 
+        // ⚠️ 3. Validate token safely
         if (!jwtService.isTokenValid(token)) {
             filterChain.doFilter(request, response);
             return;
@@ -55,8 +71,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         User user = userRepository.findByEmail(email).orElse(null);
 
-        if (user != null &&
-                SecurityContextHolder.getContext().getAuthentication() == null) {
+        // ✅ 4. Set authentication context only if valid
+        if (user != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(
