@@ -1,7 +1,5 @@
 spring.application.name=devtrack
 
-server.port=${PORT:8080}
-
 spring.datasource.url=jdbc:postgresql://localhost:5432/devtrack
 spring.datasource.username=postgres
 spring.datasource.password=your_password_here
