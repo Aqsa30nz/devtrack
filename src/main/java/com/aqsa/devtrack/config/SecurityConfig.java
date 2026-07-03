@@ -25,10 +25,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                // ✅ disable CSRF for REST APIs
+                // disable CSRF for REST APIs
                 .csrf(csrf -> csrf.disable())
 
-                // ✅ stateless JWT system
+                // stateless JWT system
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
@@ -48,11 +48,10 @@ public class SecurityConfig {
                         ).permitAll()
 
                         .requestMatchers("/error").permitAll()
-                        .requestMatchers("/actuator/**").permitAll()
                         .anyRequest().authenticated()
                 )
 
-                // ✅ JWT filter
+                // JWT filter
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class

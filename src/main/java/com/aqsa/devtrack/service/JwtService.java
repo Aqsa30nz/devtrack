@@ -19,12 +19,12 @@ public class JwtService {
     // Token validity: 1 hour
     private static final long EXPIRATION_TIME = 1000 * 60 * 60;
 
-    // 🔑 SIGNING KEY (derived from env secret)
+    // SIGNING KEY (derived from env secret)
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(secret.getBytes());
+        return Keys.hmacShaKeyFor(secret.getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
 
-    // 🔵 GENERATE TOKEN
+    // GENERATE TOKEN
     public String generateToken(String email) {
 
         return Jwts.builder()
@@ -35,7 +35,7 @@ public class JwtService {
                 .compact();
     }
 
-    // 🔵 EXTRACT EMAIL FROM TOKEN
+    // EXTRACT EMAIL FROM TOKEN
     public String extractEmail(String token) {
 
         Claims claims = Jwts.parserBuilder()
@@ -47,7 +47,7 @@ public class JwtService {
         return claims.getSubject();
     }
 
-    // 🔵 VALIDATE TOKEN
+    // VALIDATE TOKEN
     public boolean isTokenValid(String token) {
 
         try {
@@ -57,7 +57,7 @@ public class JwtService {
                     .parseClaimsJws(token);
 
             return true;
-        } catch (Exception e) {
+        } catch (io.jsonwebtoken.JwtException | IllegalArgumentException e) {
             return false;
         }
     }
