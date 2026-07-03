@@ -7,6 +7,7 @@ import com.aqsa.devtrack.entity.User;
 import com.aqsa.devtrack.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.aqsa.devtrack.dto.RegisterResponseDTO;
 
 @Service
 public class AuthService {
@@ -23,7 +24,7 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-    public User register(RegisterRequestDTO requestDTO) {
+    public RegisterResponseDTO register(RegisterRequestDTO requestDTO) {
 
         if (userRepository.existsByEmail(requestDTO.getEmail())) {
             throw new IllegalArgumentException("Email already registered");
@@ -35,7 +36,14 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(requestDTO.getPassword()));
         user.setRole("USER");
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        return new RegisterResponseDTO(
+                savedUser.getId(),
+                savedUser.getName(),
+                savedUser.getEmail(),
+                savedUser.getRole()
+        );
     }
 
     public AuthResponseDTO login(LoginRequestDTO requestDTO) {
